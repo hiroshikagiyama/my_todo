@@ -30,8 +30,8 @@ class Controller {
     }
 
     @PatchMapping("/api/todo/{todoId}")
-    fun updateTodo(@PathVariable todoId: UUID, @RequestBody updateContent: TodoItem){
-        listRepository.updateDatastore(todoId, updateContent)
+    fun updateTodo(@PathVariable todoId: UUID, @RequestBody updatedItem: TodoItem){
+        dynamoDbRepository.updateDatastore(updatedItem)
     }
 
 }

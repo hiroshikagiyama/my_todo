@@ -5,27 +5,26 @@ import org.springframework.stereotype.Repository
 import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
-@Repository
-class ListRepository {
-    private var datastore: List<TodoItem> = emptyList()
 
-    fun append(newTodoItem: TodoItem){
+@Repository
+class ListRepository: TodoRepository {
+    private var datastore: MutableList<TodoItem> = mutableListOf()
+
+    override fun append(newTodoItem: TodoItem){
         datastore += newTodoItem
     }
 
-    fun getDatastore(): List<TodoItem> = datastore
+    override fun getDatastore(): List<TodoItem> = datastore
 
-    fun deleteDatastore(id: UUID): List<TodoItem> {
-        datastore = datastore.filter{ it.id != id }
-        return datastore
+    override fun deleteDatastore(id: UUID){
+        datastore = datastore.filter{todo -> todo.id != id }.toMutableList()
     }
 
-    fun updateDatastore(id: UUID, updateContent: TodoItem): List<TodoItem>{
-        val todoIndex = datastore.indexOfFirst{ todo -> todo.id == id}
+    override fun updateDatastore(updatedItem: TodoItem){
+        val todoIndex = datastore.indexOfFirst{ todo -> todo.id == updatedItem.id}
         if(todoIndex == -1){
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found")
         }
-        datastore[todoIndex].content = updateContent.content
-        return datastore
+        datastore[todoIndex] = updatedItem
     }
 }

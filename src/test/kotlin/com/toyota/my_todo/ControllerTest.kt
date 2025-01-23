@@ -13,13 +13,25 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import java.util.*
 
 @AutoConfigureMockMvc
 @SpringBootTest
 class ControllerTest {
+    @Autowired
+    private lateinit var dynamoDbRepository: DynamoDbRepository
     @Autowired lateinit var mockMvc: MockMvc
     @Autowired lateinit var objectMapper: ObjectMapper
+    private val beforeTodoItem = TodoItem(content = "shiva")
+
+    @BeforeEach
+    fun setup(){
+        dynamoDbRepository.getDatastore().forEach{
+            dynamoDbRepository.deleteDatastore(it.id)
+        }
+    }
 
     @Test
     fun `TODOが保存される前に、GET todoは空のリストを返します`(){
@@ -31,44 +43,77 @@ class ControllerTest {
 
     @Test
     fun `A todoはPOSTで保存でき、GETで取得できます`(){
-        //arrange
-        val todoItemToSave = TodoItem(content = "頑張って")
 
         //action
         val postResult = mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(todoItemToSave)))
+            .content(objectMapper.writeValueAsString(beforeTodoItem)))
             .andReturn()
-        val getResult = mockMvc.get("/api/todo").andReturn()
 
         //assert
-        val expectedResponse: List<TodoItem> = listOf(todoItemToSave)
-        val responseContentAsList = objectMapper.readValue<List<TodoItem>>(getResult.response.contentAsString)
+        val expectedResponse: List<TodoItem> = listOf(beforeTodoItem)
 
         assertThat(200).isEqualTo(postResult.response.status)
-        assertThat(200).isEqualTo(getResult.response.status)
-        assertThat(expectedResponse).isEqualTo(responseContentAsList)
+        assertThat(expectedResponse).isEqualTo(getAllTodo())
     }
 
     @Test
     fun `アイテムを削除できます`(){
         //arrange
-        val todoItemToDelete = TodoItem(content = "東京都に行く")
         val anotherTodoItem = TodoItem(content = "頑張って")
-        mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(todoItemToDelete)))
+        mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(beforeTodoItem)))
         mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(anotherTodoItem)))
 
         //act
-        val deleteResponse = mockMvc.perform(delete("/api/todo/${todoItemToDelete.id}")).andReturn()
-        val getResult = mockMvc.get("/api/todo").andReturn()
+        val deleteResponse = mockMvc.perform(delete("/api/todo/${beforeTodoItem.id}")).andReturn()
 
         //assert
-        val responseContentAsList = objectMapper.readValue<List<TodoItem>>(getResult.response.contentAsString)
         assertThat(200).isEqualTo(deleteResponse.response.status)
-        assertThat(responseContentAsList).doesNotContain(todoItemToDelete)
-        assertThat(responseContentAsList).contains(anotherTodoItem)
+        assertThat(getAllTodo()).doesNotContain(beforeTodoItem)
+        assertThat(getAllTodo()).contains(anotherTodoItem)
     }
 
-    // DELETE test
-    // Update test
-    // Complete test
+    @Test
+    fun `存在するアイテムを更新できる`(){
+        val afterTodoItem = beforeTodoItem.copy(content = "Diva")
+        mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(beforeTodoItem)))
+
+        val updateResponse = mockMvc.perform(patch("/api/todo/${beforeTodoItem.id}").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(afterTodoItem))).andReturn()
+
+        assertThat(200).isEqualTo(updateResponse.response.status)
+        assertThat(getAllTodo()).doesNotContain(beforeTodoItem)
+        assertThat(getAllTodo()).contains(afterTodoItem)
+    }
+
+    @Test
+    fun `存在しないアイテムを更新するとエラーメッセージが返る`(){
+        val id = UUID.randomUUID()
+        val afterTodoItem = TodoItem(id = id, content = "Diva")
+
+        val updateResponse = mockMvc.perform(patch("/api/todo/${id}").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(afterTodoItem))).andReturn()
+        val errorMessage = updateResponse.response.errorMessage
+
+        assertThat(404).isEqualTo(updateResponse.response.status)
+        assertThat("Not Found").isEqualTo(errorMessage)
+    }
+
+    @Test
+    fun `アイテムのステータスを完了にできる`(){
+        val afterTodoItem = beforeTodoItem.copy(isCompleted = true)
+        mockMvc.perform(post("/api/todo").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(beforeTodoItem)))
+
+        val completedResponse = mockMvc.perform(patch("/api/todo/${beforeTodoItem.id}").contentType(APPLICATION_JSON).content(objectMapper.writeValueAsString(afterTodoItem))).andReturn()
+
+        assertThat(200).isEqualTo(completedResponse.response.status)
+        assertThat(getAllTodo()).doesNotContain(beforeTodoItem)
+        assertThat(getAllTodo()).contains(afterTodoItem)
+    }
+
+
+
+    private fun getAllTodo(): List<TodoItem>{
+        val getResult = mockMvc.get("/api/todo").andReturn()
+
+        assertThat(200).isEqualTo(getResult.response.status)
+        return objectMapper.readValue<List<TodoItem>>(getResult.response.contentAsString)
+    }
 }
