@@ -12,21 +12,21 @@ import java.util.UUID
 
 @RestController()
 class Controller {
-    @Autowired lateinit var listRepository: ListRepository
+    @Autowired lateinit var dynamoDbRepository: DynamoDbRepository
 
     @GetMapping("/api/todo")
     fun getTodo(): List<TodoItem> {
-      return listRepository.getDatastore()
+      return dynamoDbRepository.getDatastore()
     }
 
     @PostMapping("/api/todo")
     fun postTodo(@RequestBody content: TodoItem){
-        listRepository.append(content)
+        dynamoDbRepository.append(content)
     }
 
     @DeleteMapping("/api/todo/{todoId}")
     fun deleteTodo(@PathVariable todoId:UUID){
-        listRepository.deleteDatastore(todoId)
+        dynamoDbRepository.deleteDatastore(todoId)
     }
 
     @PatchMapping("/api/todo/{todoId}")

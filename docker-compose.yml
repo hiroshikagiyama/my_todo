@@ -1,0 +1,7 @@
+services:
+  localStack:
+    image: localstack/localstack
+    container_name: myLocalStack
+    ports:
+      - "4566:4566"
+      - "4564:4564"
