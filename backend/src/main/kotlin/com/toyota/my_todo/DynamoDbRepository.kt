@@ -9,29 +9,35 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
 import software.amazon.awssdk.enhanced.dynamodb.Key
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema
-import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient
 import java.net.URI
 import java.util.*
 
 @Repository
-class DynamoDbRepository: TodoRepository {
+class DynamoDbRepository(awsConfig: AwsConfigBean.AwsConfigOptions): TodoRepository {
     private lateinit var todoItemDynamoDbTable: DynamoDbTable<TodoItem>
+
     init {
+        println("@@@@!!!!@@")
+        println(awsConfig)
         val todoItemTableSchema = TableSchema.fromBean(TodoItem::class.java)
+        println("made schema")
         val dynamoDbClient = DynamoDbEnhancedClient.builder()
             .dynamoDbClient(DynamoDbClient.builder()
-                .region(Region.AP_NORTHEAST_1)
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("aaa", "aaa")))
-                .endpointOverride(URI("http://localhost:4566/"))
+                .region(awsConfig.region)
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsConfig.accessKey, awsConfig.secret)))
+                .endpointOverride(URI(awsConfig.endpoint))
                 .build())
             .build()
+        println("made dynamoDbClient")
         todoItemDynamoDbTable = dynamoDbClient.table("todo_item", todoItemTableSchema)
-
+        println("made table object")
         try {
             todoItemDynamoDbTable.describeTable()
+            println("described table")
         } catch (e: Exception) {
-            todoItemDynamoDbTable.createTable();
+            todoItemDynamoDbTable.createTable()
+            println("created table")
         }
     }
 

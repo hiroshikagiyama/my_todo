@@ -18,15 +18,25 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set("testcontainers.version", "1.20.4")
+}
+
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 	implementation(platform("software.amazon.awssdk:bom:2.30.3"))
 	implementation("software.amazon.awssdk:dynamodb-enhanced")
+
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	testImplementation("net.java.dev.jna:jna-platform:5.8.0")
+	testImplementation("org.springframework.boot:spring-boot-testcontainers")
+	testImplementation("org.testcontainers:junit-jupiter")
+	testImplementation("org.testcontainers:localstack")
+	testImplementation("org.awaitility:awaitility")
 }
 
 kotlin {
