@@ -5,3 +5,5 @@ services:
     ports:
       - "4566:4566"
       - "4564:4564"
+    volumes:
+      - ./localstack:/etc/localstack/init/ready.d/

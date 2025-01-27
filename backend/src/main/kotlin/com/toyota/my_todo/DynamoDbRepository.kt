@@ -29,8 +29,8 @@ class DynamoDbRepository(awsConfig: AwsConfigBean.AwsConfigOptions): TodoReposit
                 .endpointOverride(URI(awsConfig.endpoint))
                 .build())
             .build()
-        println("made dynamoDbClient")
-        todoItemDynamoDbTable = dynamoDbClient.table("todo_item", todoItemTableSchema)
+        println("made dynamoDbClient: tableName=${awsConfig.tableName}")
+        todoItemDynamoDbTable = dynamoDbClient.table(awsConfig.tableName, todoItemTableSchema)
         println("made table object")
         try {
             todoItemDynamoDbTable.describeTable()

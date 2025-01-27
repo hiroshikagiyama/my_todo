@@ -27,7 +27,8 @@ class TestContainerAwsConfigBean {
             region = Region.of(localStack.region),
             endpoint = localStack.getEndpointOverride(Service.DYNAMODB).toString(),
             accessKey = localStack.accessKey,
-            secret = localStack.secretKey
+            secret = localStack.secretKey,
+            tableName = "todo_item",
         )
     }
 }
