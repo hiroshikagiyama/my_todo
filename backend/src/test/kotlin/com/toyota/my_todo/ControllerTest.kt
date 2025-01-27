@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delet
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import java.util.*
 
@@ -107,7 +106,6 @@ class ControllerTest {
         assertThat(getAllTodo()).doesNotContain(beforeTodoItem)
         assertThat(getAllTodo()).contains(afterTodoItem)
     }
-
 
 
     private fun getAllTodo(): List<TodoItem>{
