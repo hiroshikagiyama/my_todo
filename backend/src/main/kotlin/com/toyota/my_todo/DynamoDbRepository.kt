@@ -1,10 +1,9 @@
 package com.toyota.my_todo
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Repository
 import org.springframework.web.server.ResponseStatusException
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable
 import software.amazon.awssdk.enhanced.dynamodb.Key
@@ -17,20 +16,25 @@ import java.util.*
 class DynamoDbRepository(awsConfig: AwsConfigBean.AwsConfigOptions): TodoRepository {
     private lateinit var todoItemDynamoDbTable: DynamoDbTable<TodoItem>
 
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     init {
-        println("@@@@!!!!@@")
-        println(awsConfig)
+        logger.info("Initializing DynamoDbRepository: awsConfig=$awsConfig")
         val todoItemTableSchema = TableSchema.fromBean(TodoItem::class.java)
-        println("made schema")
-        val dynamoDbClient = DynamoDbEnhancedClient.builder()
-            .dynamoDbClient(DynamoDbClient.builder()
-                .region(awsConfig.region)
-                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsConfig.accessKey, awsConfig.secret)))
-                .endpointOverride(URI(awsConfig.endpoint))
-                .build())
+        val dynamoDbClientBuilder = DynamoDbClient.builder()
+        if (awsConfig.endpoint != "") {
+            dynamoDbClientBuilder.endpointOverride(URI(awsConfig.endpoint))
+            logger.info("overriding endpoint: ${awsConfig.endpoint}")
+        }
+        val dynamoDbClient = dynamoDbClientBuilder
+            .region(awsConfig.region)
+            //.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsConfig.accessKey, awsConfig.secret)))
+            .build()
+        val dynamoDbEnhancedClient = DynamoDbEnhancedClient.builder()
+            .dynamoDbClient(dynamoDbClient)
             .build()
         println("made dynamoDbClient: tableName=${awsConfig.tableName}")
-        todoItemDynamoDbTable = dynamoDbClient.table(awsConfig.tableName, todoItemTableSchema)
+        todoItemDynamoDbTable = dynamoDbEnhancedClient.table(awsConfig.tableName, todoItemTableSchema)
         println("made table object")
         try {
             todoItemDynamoDbTable.describeTable()
