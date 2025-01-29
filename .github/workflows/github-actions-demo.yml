@@ -10,7 +10,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: cd ${{ github.repository }}/frontend
+      - run: pwd
+      - run: cd frontend
       - run: npm ci
       - run: npm run test
 # Test-Backend
