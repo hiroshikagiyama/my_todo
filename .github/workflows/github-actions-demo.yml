@@ -14,10 +14,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: cd frontend
-      - run: pwd
-      - run: npm ci
-      - run: npm run test
+      - run: |
+          cd frontend
+          pwd
+          npm ci
+          npm run test
 # Test-Backend
 #  Build-App:
 #    xxx
