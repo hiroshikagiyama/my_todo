@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "20"
       - run: cd frontend
-      - run: ls ./
+      - run: pwd
       - run: npm ci
       - run: npm run test
 # Test-Backend
