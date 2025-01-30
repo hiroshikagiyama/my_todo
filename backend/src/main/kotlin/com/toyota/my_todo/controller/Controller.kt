@@ -1,5 +1,7 @@
-package com.toyota.my_todo
+package com.toyota.my_todo.controller
 
+import com.toyota.my_todo.repository.DynamoDbRepository
+import com.toyota.my_todo.repository.TodoItem
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping

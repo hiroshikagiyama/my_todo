@@ -1,4 +1,4 @@
-package com.toyota.my_todo
+package com.toyota.my_todo.repository
 
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Repository

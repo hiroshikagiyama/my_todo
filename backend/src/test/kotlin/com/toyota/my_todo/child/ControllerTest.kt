@@ -1,4 +1,4 @@
-package com.toyota.my_todo
+package com.toyota.my_todo.child
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -12,13 +12,16 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.toyota.my_todo.TestContainerAwsConfigBean
+import com.toyota.my_todo.repository.DynamoDbRepository
+import com.toyota.my_todo.repository.TodoItem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import java.util.*
 
 @AutoConfigureMockMvc
 @SpringBootTest
-class ControllerTest {
+class ControllerTest: TestContainerAwsConfigBean() {
     @Autowired
     private lateinit var dynamoDbRepository: DynamoDbRepository
     @Autowired lateinit var mockMvc: MockMvc

@@ -1,7 +1,5 @@
-package com.toyota.my_todo
+package com.toyota.my_todo.repository
 
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 interface TodoRepository {
