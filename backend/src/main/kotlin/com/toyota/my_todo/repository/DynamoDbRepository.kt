@@ -45,15 +45,6 @@ class DynamoDbRepository(awsConfig: AwsConfigBean.AwsConfigOptions) : TodoReposi
             .build()
         println("made dynamoDbClient: tableName=${awsConfig.tableName}")
         todoItemDynamoDbTable = dynamoDbEnhancedClient.table(awsConfig.tableName, todoItemTableSchema)
-        println("made table object")
-        try {
-            todoItemDynamoDbTable.describeTable()
-            println("described table")
-        } catch (e: Exception) {
-            println(e)
-            todoItemDynamoDbTable.createTable()
-            println("created table")
-        }
     }
 
     override fun getDatastore(): List<TodoItem> {
