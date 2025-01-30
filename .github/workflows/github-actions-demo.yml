@@ -19,6 +19,25 @@ jobs:
           pwd
           npm ci
           npm run test
+
+  Test-Backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "gradle"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Run test
+        shell: bash
+        run: |
+          cd backend
+          ./gradlew test
 # Test-Backend
 #  Build-App:
 #    xxx
