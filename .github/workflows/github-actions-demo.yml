@@ -38,6 +38,35 @@ jobs:
         run: |
           cd backend
           ./gradlew test
+
+  Build-Image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+          cache: "gradle"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      - name: Build Container Image
+        run: |
+          cd frontend 
+          npm i
+          npm run build
+          mv ./dist ../backend/src/main/resources/static
+          
+          cd ../backend
+          ls ./src/main/resources/static
+          ./gradlew bootBuildImage
+          docker images
 # Test-Backend
 #  Build-App:
 #    xxx
