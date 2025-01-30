@@ -11,10 +11,12 @@ vitest.stubGlobal("fetch", mockFetch)
 describe("App Tests", () => {
 
     afterEach(() => {
+        // コンポーネントのクリーンアップ
         cleanup()
     });
 
-    test('given data is not existed when renders app then see only title and button', () => {
+    // データが存在しない場合、タイトルとボタンのみが表示される
+    test('given data is not existed when renders app then see only title and text input and button', () => {
         spyFetchGetJson.mockResolvedValue([])
 
         render(<App/>)
@@ -23,7 +25,7 @@ describe("App Tests", () => {
         expect(screen.getByRole("textbox")).toBeInTheDocument()
         expect(screen.getByRole("button", {name: "追加"})).toBeInTheDocument()
     })
-
+    // データが存在する場合、todo_item が表示される
     test("given data is existed when render then see todo items", async () => {
         spyFetchGetJson.mockResolvedValue([{id: "1", content: "todo1", isCompleted: false}])
 
@@ -35,6 +37,7 @@ describe("App Tests", () => {
         })
     })
 
+    // todo_itemが入力されている場合、追加ボタンをクリックするとtodo_itemが追加される
     test("when write new item and click button then fetch post request", async () => {
         spyFetchGetJson.mockResolvedValue([{id: "1", content: "Hello World", isCompleted: false}])
 
@@ -55,7 +58,7 @@ describe("App Tests", () => {
             expect(screen.getByRole("textbox")).toHaveValue("")
         })
     })
-
+    // 完了のtodo_itemは一覧に表示されない
     test("when data is existed but completed status when render then cannot see todo item", async () => {
         spyFetchGetJson.mockResolvedValue([
             {id: "1", content: "Hello World", isCompleted: true},
@@ -63,15 +66,12 @@ describe("App Tests", () => {
         ])
 
         render(<App/>)
-
-        // await waitFor(() => {
-        //     expect(screen.getByText("Jun desu")).toBeInTheDocument()
-        //     expect(screen.queryByText("Hello World")).not.toBeInTheDocument()
-        // })
         expect(await screen.findByText("Jun desu")).toBeInTheDocument()
+        // getByTextだと、表示されない要素はエラーとなるため、要素がないかテストするときは、queryByTextを使う
         expect(screen.queryByText("Hello World")).not.toBeInTheDocument()
     })
 
+    // todo_itemが入力されている場合、Enterキーを押すとtodo_itemが追加される
     test("when write new item press enter then fetch post request", async () => {
         spyFetchGetJson.mockResolvedValue([{id: "1", content: "Hello World", isCompleted: false}])
 
@@ -91,6 +91,19 @@ describe("App Tests", () => {
             expect(screen.getByText("Hello World")).toBeInTheDocument()
             expect(screen.getByRole("textbox")).toHaveValue("")
         })
+    })
+
+    // todo_item入力内容が空の場合、追加ボタンがdisabled:trueである
+    test("The add button should be disabled when the todo item input is empty", async ()=>{
+        // spyFetchGetJson.mockResolvedValue([])
+
+        render(<App/>)
+
+        const todoInput = screen.getByRole('textbox');
+        await userEvent.clear(todoInput)
+
+        expect(todoInput).toHaveValue('')
+        expect(screen.getByRole("button", {name: "追加"})).toBeDisabled();
     })
 
 })

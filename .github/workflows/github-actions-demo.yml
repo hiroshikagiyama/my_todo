@@ -70,7 +70,3 @@ jobs:
           ls ./src/main/resources/static
           ./gradlew bootBuildImage
           docker images
-# Test-Backend
-#  Build-App:
-#    xxx
-#  Build-Image:
