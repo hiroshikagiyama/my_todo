@@ -41,6 +41,9 @@ jobs:
 
   Build-Image:
     runs-on: ubuntu-latest
+    needs:
+      - Test-Backend
+      - Test-Frontend
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
