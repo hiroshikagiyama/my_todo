@@ -21,6 +21,7 @@ function App() {
     async function fetchGetTodo (){
         const response = await fetch(`/api/todo`);
         const data = await response.json();
+        // console.log(data)
         // stringの昇順
         data.sort((a: Todo, b: Todo) => a.content.localeCompare(b.content))
         setTodo(data)
@@ -139,6 +140,7 @@ function App() {
                     type={"text"}
                     style={{ marginRight: "20px" }}
                     onKeyDown={handleKeyDown}
+                    // onKeyDown={(e)=> {console.log(e.key)}}
                     onChange={(e) => setInputTodoContent(e.target.value)}
                     value={inputTodoContent}
                 />
