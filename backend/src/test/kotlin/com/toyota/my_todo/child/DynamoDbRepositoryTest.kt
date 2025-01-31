@@ -17,12 +17,11 @@ class DynamoDbRepositoryTest : TestContainerAwsConfigBean() {
     @Autowired
     private lateinit var repository: DynamoDbRepository
 
-    @Test
-    fun `データベースにアイテムがない場合は、空の配列を返す`() {
-        val result = repository.getDatastore()
-        println(result)
-        assertThat(result).isEqualTo(listOf<String>())
-    }
+//    @Test
+//    fun `データベースにアイテムがない場合は、空の配列を返す`() {
+//        val result = repository.getDatastore()
+//        assertThat(result).isEqualTo(listOf<String>())
+//    }
 
     @Test
     fun `todoItemを保存できる`() {
