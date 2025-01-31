@@ -1,7 +1,6 @@
 package com.toyota.my_todo.child
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.toyota.my_todo.repository.DynamoDbRepository
 import com.toyota.my_todo.repository.TodoItem
 import org.assertj.core.api.Assertions.assertThat
