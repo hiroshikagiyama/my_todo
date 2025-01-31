@@ -32,6 +32,7 @@ class Controller {
     }
 
     @PatchMapping("/api/todo/{todoId}")
+    // todoIdが不要なのでリファクタリングする
     fun updateTodo(@PathVariable todoId: UUID, @RequestBody updatedItem: TodoItem){
         dynamoDbRepository.updateDatastore(updatedItem)
     }

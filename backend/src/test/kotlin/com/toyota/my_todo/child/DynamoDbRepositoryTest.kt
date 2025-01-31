@@ -10,12 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 class DynamoDbRepositoryTest : TestContainerAwsConfigBean() {
-
     @Autowired
     private lateinit var repository: DynamoDbRepository
 
     @Test
-    fun `todoItemを保存できます`() {
+    fun `todoItemを保存できる`() {
         val todoToSave = TodoItem(content = "use dynamoDB")
         repository.append(todoToSave)
         assertThat(repository.getDatastore()).contains(todoToSave)
