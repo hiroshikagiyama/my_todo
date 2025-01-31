@@ -32,6 +32,31 @@ class ControllerTest {
     lateinit var objectMapper: ObjectMapper
     private val beforeTodoItem = TodoItem(content = "shiva")
 
+    /*
+    memo
+- 準備
+UUID set
+val uuid = UUID.fromString("ccf17f62-5f15-47a8-a2a0-10033c275716")
+    val mockStatic = Mockito.mockStatic(UUID::class.java)
+    mockStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(uuid)
+
+模擬のデータ準備(MockのDBの戻り値を固定している)
+Mockito.`when`(dynamoDbRepository.getDatastore())
+        .thenReturn(listOf(TodoItem(id = uuid, content = "DIG")))
+
+- 実行
+get all（Mockからの返値をGetする）
+val result = mockMvc.get("/api/todo").andReturn()
+
+- 確認
+ assertThat(result.response.status).isEqualTo(200)
+ assertThat("""
+    [{"id":"ccf17f62-5f15-47a8-a2a0-10033c275716","content":"shiva","isCompleted":false}]
+    """.trimIndent())
+        .isEqualTo(result.response.contentAsString)
+    mockStatic.close()
+ */
+
     @Test
     fun `TODOが保存される前に、GET todoは空のリストを返します`() {
         val uuid = UUID.fromString("ccf17f62-5f15-47a8-a2a0-10033c275716")
@@ -49,30 +74,6 @@ class ControllerTest {
             .isEqualTo(result.response.contentAsString)
         mockStatic.close()
     }
-
-    /*
-    - 準備
-    UUID set
-    val uuid = UUID.fromString("ccf17f62-5f15-47a8-a2a0-10033c275716")
-        val mockStatic = Mockito.mockStatic(UUID::class.java)
-        mockStatic.`when`<UUID> { UUID.randomUUID() }.thenReturn(uuid)
-
-    模擬のデータ準備(MockのDBの戻り値を固定している)
-    Mockito.`when`(dynamoDbRepository.getDatastore())
-            .thenReturn(listOf(TodoItem(id = uuid, content = "DIG")))
-
-    - 実行
-    get all（Mockからの返値をGetする）
-    val result = mockMvc.get("/api/todo").andReturn()
-
-    - 確認
-     assertThat(result.response.status).isEqualTo(200)
-     assertThat("""
-        [{"id":"ccf17f62-5f15-47a8-a2a0-10033c275716","content":"shiva","isCompleted":false}]
-        """.trimIndent())
-            .isEqualTo(result.response.contentAsString)
-        mockStatic.close()
-     */
 
     @Test
     // fun `POST /api/todo` () {}
@@ -103,16 +104,11 @@ class ControllerTest {
 
     @Test
     fun `アイテムを削除できます`() {
-        //act
-        val deleteResponse = mockMvc.perform(delete("/api/todo/${beforeTodoItem.id}"))
-            .andReturn()
+        val deleteResponse = mockMvc.perform(delete("/api/todo/${beforeTodoItem.id}")).andReturn()
 
-        //assert
         assertThat(200).isEqualTo(deleteResponse.response.status)
-        // deleteDatastoreが呼び出されているかを確認する、呼び出し回数が１回
         Mockito.verify(dynamoDbRepository, Mockito.times(1))
             .deleteDatastore(
-                // 呼び出し時の引数の確認
                 beforeTodoItem.id
             )
     }
@@ -129,7 +125,6 @@ class ControllerTest {
         assertThat(updateResponse.response.status).isEqualTo(200)
         Mockito.verify(dynamoDbRepository, Mockito.times(1))
             .updateDatastore(
-                // 呼び出し時の引数の確認
                 afterTodoItem
             )
     }
@@ -146,21 +141,17 @@ class ControllerTest {
         assertThat(200).isEqualTo(completedResponse.response.status)
         Mockito.verify(dynamoDbRepository, Mockito.times(1))
             .updateDatastore(
-                // 呼び出し時の引数の確認
                 afterTodoItem
             )
     }
 
     @Test
     fun `存在しないアイテムを更新するとエラーメッセージが返る`() {
-        // 偽物のアイテム作成
         val id = UUID.randomUUID()
         val afterTodoItem = TodoItem(id = id, content = "Diva")
-        // 返値をセット
         Mockito.`when`(dynamoDbRepository.updateDatastore(afterTodoItem))
             .thenThrow(ResponseStatusException(HttpStatus.NOT_FOUND, "Not Found"))
 
-        // 偽物のアイテムをPATCH
         val updateResponse = mockMvc.perform(
             patch("/api/todo/${id}").contentType(APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(afterTodoItem))
@@ -169,12 +160,4 @@ class ControllerTest {
         assertThat(updateResponse.response.status).isEqualTo(404)
     }
 
-
-
-//    private fun getAllTodo(): List<TodoItem> {
-//        val getResult = mockMvc.get("/api/todo").andReturn()
-//
-//        assertThat(200).isEqualTo(getResult.response.status)
-//        return objectMapper.readValue<List<TodoItem>>(getResult.response.contentAsString)
-//    }
 }
